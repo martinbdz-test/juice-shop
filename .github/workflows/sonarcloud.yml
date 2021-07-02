@@ -6,6 +6,38 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [14]
+    steps:
+      - name: "Check out Git repository"
+        uses: actions/checkout@v2
+      - name: "Use Node.js ${{ matrix.node-version }}"
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: "Cache Node.js modules"
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
+      - name: "Install CLI tools"
+        run: npm install -g @angular/cli
+      - name: "Install application"
+        run: npm install
+      - name: "Execute unit tests"
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: npm test
+
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
