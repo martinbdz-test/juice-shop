@@ -20,6 +20,7 @@ async function productPrice (query, user) {
 }
 
 function couponCode (query, user) {
+  // Just add a random comment
   utils.solveIf(challenges.bullyChatbotChallenge, () => { return true })
   return {
     action: 'response',
